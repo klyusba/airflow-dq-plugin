@@ -4,6 +4,6 @@ Simple airflow plugin to create data quality checks
 ## install
 create Postgres connection via Airflow WebUI
 
-create tables from example.dll
+create tables from example.ddl
 
 copy dq-plugin folder to $AIRFLOW_HOME/plugins and restart airflow 

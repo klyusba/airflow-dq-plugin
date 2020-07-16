@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Качество данных</title>
+</head>
+<body>
+	<div style="display: flex; justify-content: space-around; margin 50px 10wh 0">
+		<div id="checks" style="width: 20vw">
+			<a href="new">Создать проверку</a>
+			<select style="width: 100%; height: 80vh" onchange="check_info(this.options[this.selectedIndex].value)" size="2">
+				{% for id, name in checks %}
+				<option value="{{ id }}">{{ name }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div style="width: 60vw">
+			<div id="properties" style="height: 50vh">
+			</div>
+			<div id="last_run" style="height: 50vh">
+			</div>
+		</div>
+	</div>
+<script type="text/javascript">
+	function ajax(method, url, callback, json) {
+		var request = new XMLHttpRequest();
+		request.open(method, url, true);
+		request.addEventListener('readystatechange', function() {
+			if ((request.readyState==4) && (request.status==200)) {
+		    	callback(request.responseText)
+		  	}
+		});
+		if (json){
+			request.setRequestHeader("Content-Type", "application/json");
+			request.send(JSON.stringify(json));
+		} else {
+			request.send();
+		}
+	};
+
+	function check_info(id) {
+		ajax('GET', 'check/' + id, function (response){
+			document.getElementById("properties").innerHTML = response;
+		});
+
+		ajax('GET', 'run/' + id, function (response){
+			document.getElementById("last_run").innerHTML = response;
+		});
+	}
+
+	function trigger(id) {
+		ajax('POST', `/api/experimental/dags/${id}/dag_runs`, function (){
+			alert('Проверка запущена');
+		}, json={conf: {}})
+	}
+</script>
+</body>
+</html>

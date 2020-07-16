@@ -1,0 +1,28 @@
+<h2>Последний запуск - {{ run_dttm.strftime('%d.%m.%Y %H:%M ') }}</h2>
+<table style="text-align: left; width: 100%">
+	{% if results|length == 0 and status == 'DONE' %}
+	<tr>
+		<th>Результат проверки пустой</th>
+	</tr>
+	{% endif %}
+	{% if results|length == 0 and status == 'RUNNING' %}
+	<tr>
+		<th>Проверка запущена</th>
+	</tr>
+	{% endif %}
+	{% if status == 'ERROR' %}
+	<tr>
+		<th>Запуск проверки закончился ошибкой:</th>
+	</tr>
+	{% endif %}
+	{% if status == 'DONE' and results|length > 0 %}
+	<tr>
+		<th>Результаты проверки:</th>
+	</tr>
+	{% endif %}
+	{% for (msg, ) in results %}
+		<tr>
+			<td>{{ msg }}</td>
+		</tr>
+	{% endfor %}
+</table>

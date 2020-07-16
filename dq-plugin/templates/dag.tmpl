@@ -1,0 +1,56 @@
+from airflow.models import DAG
+from airflow.operators.python_operator import PythonOperator
+from airflow.utils.dates import days_ago
+from airflow.hooks.dq import PostgresHook
+from airflow.hooks.base_hook import BaseHook
+
+
+args = {
+    'owner': 'DQ',
+    'start_date': days_ago(2),
+    'depends_on_past': False,
+}
+
+dag = DAG(
+    dag_id='dq_{{ id }}',
+    description='{{ name }}',
+    default_args=args,
+    schedule_interval='{{ schedule }}',
+)
+
+
+def check_run():
+    dq_hook = PostgresHook("{{ dq_conn_id }}")
+    run_id = dq_hook.run_returning("""
+        INSERT INTO runs (check_id, status) 
+        VALUES ('{{ id }}', 'RUNNING')
+        RETURNING id 
+    """)[0]
+
+    try:
+        hook = BaseHook.get_connection("{{ conn_id }}").get_hook()
+        rows = hook.get_records("""
+            {{ script }}
+        """)
+        dq_hook.insert_rows(
+            "results",
+            rows=((run_id, msg) for msg, *_ in rows)
+        )
+        dq_hook.run(
+            "UPDATE runs SET status = 'DONE', end_dttm = now() WHERE id = %(run_id)s",
+            parameters={'run_id': run_id}, 
+            autocommit=True
+        )
+    except Exception as e:
+        dq_hook.run([
+            "INSERT INTO results VALUES (%(run_id)s, %(msg)s)",
+            "UPDATE runs SET status = 'ERROR', end_dttm = now() WHERE id = %(run_id)s",
+        ], parameters={'run_id': run_id, 'msg': str(e)}, autocommit=True)
+
+
+check_run_task = PythonOperator(
+    task_id='check_run',
+    provide_context=False,
+    python_callable=check_run,
+    dag=dag,
+)

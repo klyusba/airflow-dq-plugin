@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Создание сверки</title>
+</head>
+<body>
+	<div style="margin 50px 10wh 0">
+		<form action="check" method="post">
+			{{ form.csrf_token }}
+			<p>Название сверки</p>
+			{{ form.name }}
+			<p>Скрипт сверки</p>
+			{{ form.script }}
+			<p>Регламент запуска</p>
+			{{ form.schedule }}
+			<p></p>
+			{{ form.submit }}
+		</form>
+	</div>
+</body>
+</html>

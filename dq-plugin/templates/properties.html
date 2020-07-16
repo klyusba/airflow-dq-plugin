@@ -1,0 +1,23 @@
+<h2>{{ name }}</h2>
+<table style="text-align: left">
+	<tr>
+		<th>Номер</th>
+		<td>{{ id }}</td>
+	</tr>
+	<tr>
+		<th>Скрипт</th>
+		<td>{{ script }}</td>
+	</tr>
+	<tr>
+		<th>Автор</th>
+		<td>{{ author }}</td>
+	</tr>
+	<tr>
+		<th>Регламент запуска</th>
+		<td>{{ schedule }}</td>
+	</tr>
+	<tr>
+		<th></th>
+		<td><button onclick="trigger('dq_{{ id }}')">Запустить</button></td>
+	</tr>
+</table>

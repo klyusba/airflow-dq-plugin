@@ -7,7 +7,7 @@ from airflow.hooks.base_hook import BaseHook
 
 args = {
     'owner': 'DQ',
-    'start_date': days_ago(2),
+    'start_date': days_ago(1),
     'depends_on_past': False,
 }
 
@@ -29,9 +29,9 @@ def check_run():
 
     try:
         hook = BaseHook.get_connection("{{ conn_id }}").get_hook()
-        rows = hook.get_records("""
-            {{ script }}
-        """)
+        rows = hook.get_records("""\
+{{ script }}
+""")
         dq_hook.insert_rows(
             "results",
             rows=((run_id, msg) for msg, *_ in rows)
